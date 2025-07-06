@@ -1,0 +1,77 @@
+/* 전역 스크롤바 스타일 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #F7FAFC;
+}
+
+/* Webkit 브라우저용 스크롤바 */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #F7FAFC;
+  border-radius: 0;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #CBD5E0;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #A0AEC0;
+}
+
+*::-webkit-scrollbar-corner {
+  background: #F7FAFC;
+}
+
+/* 다크 테마 스크롤바 (사이드바 등) */
+.dark-scrollbar {
+  scrollbar-color: #4A5568 #2D3748;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: #2D3748;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: #4A5568;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* 숨김 스크롤바 */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 좁은 스크롤바 */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* 수평 스크롤 방지 */
+.no-horizontal-scroll {
+  overflow-x: hidden;
+}
+
+/* 스크롤 스냅 */
+.scroll-snap-y {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.scroll-snap-item {
+  scroll-snap-align: start;
+}

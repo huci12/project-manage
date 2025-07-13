@@ -81,5 +81,13 @@ export default {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  min-width: 1084px; /* 접힌 사이드바(80px) + 콘텐츠(744px) + 퀵패널(260px) */
+}
+
+/* 작은 화면에서 스크롤 허용 */
+@media (max-width: 1024px) {
+  #app {
+    overflow-x: auto;
+  }
 }
 </style>

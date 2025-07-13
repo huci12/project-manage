@@ -206,6 +206,7 @@ export default {
 <style scoped>
 .dashboard-page {
   padding: 40px;
+  min-width: 0; /* 플렉스 아이템이 콘텐츠에 맞게 축소될 수 있도록 */
 }
 
 /* 헤더 */
@@ -409,7 +410,7 @@ export default {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
 }
 
@@ -529,9 +530,24 @@ export default {
   }
 }
 
+@media (max-width: 1024px) {
+  .dashboard-page {
+    padding: 32px;
+  }
+  
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .search-box {
+    width: 250px;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-page {
     padding: 24px;
+    min-width: 320px; /* 모바일 최소 너비 */
   }
   
   .dashboard-header {
@@ -546,6 +562,7 @@ export default {
   
   .search-box {
     flex: 1;
+    width: auto;
   }
   
   .stats-section {

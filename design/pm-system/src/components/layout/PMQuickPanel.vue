@@ -184,14 +184,14 @@ export default {
 
 <style scoped>
 .pm-quick-panel {
-  width: 320px;
+  width: 300px;
   height: 100vh;
   background-color: #FFFFFF;
   border-left: 1px solid #E2E8F0;
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 999;
+  z-index: 900; /* 사이드바(1000)보다 낮게 설정 */
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
@@ -200,7 +200,7 @@ export default {
 }
 
 .pm-quick-panel--collapsed {
-  width: 80px;
+  width: 60px;
 }
 
 /* 헤더 */
@@ -527,14 +527,24 @@ export default {
   color: #FFFFFF;
 }
 
-/* 반응형 */
+/* 반응형 - 퀵패널도 항상 표시 */
 @media (max-width: 1600px) {
   .pm-quick-panel {
     width: 280px;
   }
   
   .pm-quick-panel--collapsed {
-    width: 80px;
+    width: 60px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .pm-quick-panel {
+    width: 260px;
+  }
+  
+  .pm-quick-panel--collapsed {
+    width: 60px;
   }
 }
 
@@ -545,16 +555,6 @@ export default {
   
   .pm-quick-panel--collapsed {
     width: 60px;
-  }
-}
-
-@media (max-width: 480px) {
-  .pm-quick-panel {
-    width: 200px;
-  }
-  
-  .pm-quick-panel--collapsed {
-    width: 50px;
   }
 }
 </style>

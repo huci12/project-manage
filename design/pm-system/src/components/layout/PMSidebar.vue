@@ -192,8 +192,7 @@ export default {
   left: 0;
   top: 0;
   z-index: 1000;
-  overflow-x: visible; /* 토글 버튼이 잘리지 않도록 */
-  overflow-y: hidden; /* 전체 사이드바는 스크롤 없음 */
+  overflow: hidden; /* 가로 스크롤 방지 */
 }
 
 .pm-sidebar--collapsed {
@@ -205,7 +204,18 @@ export default {
   padding: 24px;
   border-bottom: 1px solid #2D3748;
   position: relative;
-  overflow: visible; /* 토글 버튼이 헤더 밖으로 나갈 수 있도록 */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 접힌 상태에서는 세로 정렬 */
+.pm-sidebar--collapsed .pm-sidebar__header {
+  padding: 16px;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
 }
 
 .pm-sidebar--collapsed .pm-sidebar__header {
@@ -216,11 +226,13 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
 }
 
 .pm-sidebar--collapsed .pm-sidebar__logo {
   flex-direction: column;
   gap: 0;
+  justify-content: center;
 }
 
 .logo-icon {
@@ -237,14 +249,10 @@ export default {
 
 /* 토글 버튼 */
 .toggle-btn {
-  position: absolute;
-  right: 9px; /* 확장 상태에서는 오른쪽 밖으로 */
-  top: 50%;
-  transform: translateY(-50%);
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #667EEA;
+  background-color: #4A5568;
   border: none;
   cursor: pointer;
   display: flex;
@@ -252,20 +260,26 @@ export default {
   justify-content: center;
   color: #FFFFFF;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1002; /* 사이드바보다 앞에 표시 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1002;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 접힌 상태에서 토글 버튼 위치 */
+.pm-sidebar--collapsed .toggle-btn {
+  position: relative;
+  right: auto;
+  top: auto;
+  transform: none;
+  margin-top: 16px; /* 로고와의 간격 */
 }
 
 .toggle-btn:hover {
-  background-color: #5a67d8;
+  background-color: #667EEA;
   transform: translateY(-50%) scale(1.1);
-}
-
-.pm-sidebar--collapsed .toggle-btn {
-  /* 축소 상태에서는 로고 밑으로 이동 */
-  position: static;
-  margin: 12px auto 0 auto; /* 로고 밑에 12px 간격으로 중앙 정렬 */
-  transform: none;
 }
 
 .pm-sidebar--collapsed .toggle-btn:hover {
@@ -463,14 +477,8 @@ export default {
   background-color: #4A5568;
 }
 
-/* 반응형 */
+/* 반응형 - 사이드바는 항상 표시, 화면 크기와 무관하게 토글 가능 */
 @media (max-width: 768px) {
-  .pm-sidebar {
-    transform: translateX(-100%);
-  }
-  
-  .pm-sidebar--open {
-    transform: translateX(0);
-  }
+  /* 모바일에서도 사이드바 표시, 토글 기능 유지 */
 }
 </style>

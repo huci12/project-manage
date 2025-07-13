@@ -1,38 +1,17 @@
 <template>
   <div class="main-layout" :class="{ 'main-layout--sidebar-collapsed': sidebarCollapsed }">
-    <!-- 사이드바 -->
+    <!-- 사이드바 - 항상 표시 -->
     <PMSidebar 
       :collapsed="sidebarCollapsed"
       :active-item="activeNavItem"
       @nav-click="handleNavClick"
+      @toggle="handleSidebarToggle"
+      @logout="handleLogout"
       class="main-sidebar"
     />
 
     <!-- 메인 콘텐츠 영역 -->
     <div class="main-content">
-      <!-- 상단 헤더 (모바일용) -->
-      <header class="mobile-header">
-        <button 
-          class="sidebar-toggle"
-          @click="toggleSidebar"
-          :aria-label="sidebarCollapsed ? '사이드바 열기' : '사이드바 닫기'"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-          </svg>
-        </button>
-
-        <div class="mobile-logo">
-          <span class="logo-text">PM System</span>
-        </div>
-
-        <div class="mobile-user">
-          <div class="user-avatar">
-            <span class="avatar-text">김</span>
-          </div>
-        </div>
-      </header>
-
       <!-- 페이지 콘텐츠 -->
       <main class="page-content">
         <slot>
@@ -40,13 +19,6 @@
         </slot>
       </main>
     </div>
-
-    <!-- 모바일 사이드바 오버레이 -->
-    <div 
-      v-if="sidebarOpen && isMobile"
-      class="sidebar-overlay"
-      @click="closeSidebar"
-    ></div>
   </div>
 </template>
 
@@ -60,9 +32,7 @@ export default {
   },
   data() {
     return {
-      sidebarCollapsed: false,
-      sidebarOpen: false,
-      isMobile: false
+      sidebarCollapsed: false
     }
   },
   computed: {
@@ -83,48 +53,40 @@ export default {
     }
   },
   mounted() {
-    this.checkScreenSize()
-    window.addEventListener('resize', this.checkScreenSize)
-  },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.checkScreenSize)
+    // 초기 화면 크기에 따라 사이드바 상태 설정
+    this.checkInitialScreenSize()
   },
   methods: {
-    checkScreenSize() {
-      this.isMobile = window.innerWidth < 768
-      if (this.isMobile) {
+    checkInitialScreenSize() {
+      // 768px 이하에서는 사이드바를 접은 상태로 시작
+      if (window.innerWidth <= 768) {
         this.sidebarCollapsed = true
-        this.sidebarOpen = false
-      } else {
-        this.sidebarOpen = true
       }
     },
 
-    toggleSidebar() {
-      if (this.isMobile) {
-        this.sidebarOpen = !this.sidebarOpen
-      } else {
-        this.sidebarCollapsed = !this.sidebarCollapsed
-      }
-    },
-
-    closeSidebar() {
-      if (this.isMobile) {
-        this.sidebarOpen = false
-      }
+    handleSidebarToggle(collapsed) {
+      this.sidebarCollapsed = collapsed
     },
 
     handleNavClick(item) {
       console.log('Navigation clicked:', item)
       
-      // 모바일에서는 네비게이션 클릭 시 사이드바 닫기
-      if (this.isMobile) {
-        this.sidebarOpen = false
+      // 768px 이하에서는 네비게이션 클릭 시 사이드바 접기
+      if (window.innerWidth <= 768 && !this.sidebarCollapsed) {
+        this.sidebarCollapsed = true
       }
 
       // 라우터 이동
       if (this.$router && item.href !== this.$route.path) {
         this.$router.push(item.href)
+      }
+    },
+
+    handleLogout() {
+      console.log('Logout clicked')
+      // 로그아웃 처리
+      if (this.$router) {
+        this.$router.push('/')
       }
     }
   }
@@ -136,22 +98,19 @@ export default {
   display: flex;
   min-height: 100vh;
   background-color: #F0EFF7;
+  position: relative;
+  /* 최소 너비: 사이드바 + 콘텐츠 + 퀵패널 */
+  min-width: 1084px; /* 80px + 744px + 260px */
 }
 
-/* 사이드바 */
+/* 사이드바 - 항상 표시 */
 .main-sidebar {
-  transition: transform 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  .main-sidebar {
-    transform: translateX(-100%);
-    z-index: 1100;
-  }
-
-  .main-layout--sidebar-open .main-sidebar {
-    transform: translateX(0);
-  }
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  transition: width 0.3s ease;
 }
 
 /* 메인 콘텐츠 */
@@ -162,119 +121,59 @@ export default {
   margin-left: 280px;
   transition: margin-left 0.3s ease;
   min-width: 0;
+  position: relative;
 }
 
 .main-layout--sidebar-collapsed .main-content {
   margin-left: 80px;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-  }
-}
-
-/* 모바일 헤더 */
-.mobile-header {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background-color: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-@media (max-width: 768px) {
-  .mobile-header {
-    display: flex;
-  }
-}
-
-.sidebar-toggle {
-  background: none;
-  border: none;
-  color: #4A5568;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-toggle:hover {
-  background-color: #F7FAFC;
-  color: #293380;
-}
-
-.mobile-logo {
-  flex: 1;
-  text-align: center;
-}
-
-.logo-text {
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 18px;
-  color: #1A202C;
-}
-
-.mobile-user {
-  flex-shrink: 0;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: #293380;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-text {
-  color: #FFFFFF;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-}
-
 /* 페이지 콘텐츠 */
 .page-content {
   flex: 1;
   background-color: #F0EFF7;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   overflow-x: auto;
+  min-width: 744px; /* 콘텐츠 최소 너비 유지 */
+  width: 100%;
 }
 
-@media (max-width: 768px) {
+/* 사이드바 상태와 관계없이 콘텐츠 최소 너비 유지 */
+.main-layout--sidebar-collapsed .page-content {
+  min-width: 744px; /* 동일한 최소 너비 유지 */
+}
+
+/* 작은 화면에서도 레이아웃 유지 */
+@media (max-width: 1280px) {
+  .main-layout {
+    /* 사이드바 + 콘텐츠 최소 너비 */
+    min-width: 824px; /* 80px(접힌 사이드바) + 744px(콘텐츠) */
+  }
+  
   .page-content {
-    min-height: calc(100vh - 68px);
+    min-width: 744px; /* 콘텐츠 최소 너비 유지 */
   }
 }
 
-/* 오버레이 */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1050;
-  opacity: 0;
-  animation: fadeIn 0.3s ease forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
+@media (max-width: 768px) {
+  /* 모바일에서도 콘텐츠 최소 너비 유지 */
+  .main-layout {
+    min-width: 824px; /* 80px(접힌 사이드바) + 744px(콘텐츠) */
+  }
+  
+  /* 사이드바 펼쳐진 상태 */
+  .main-content {
+    margin-left: 280px;
+  }
+  
+  /* 사이드바 접힌 상태 */
+  .main-layout--sidebar-collapsed .main-content {
+    margin-left: 80px;
+  }
+  
+  .page-content {
+    min-width: 744px; /* 콘텐츠 최소 너비 유지 */
+    width: 100%;
   }
 }
 
@@ -297,29 +196,48 @@ export default {
   background: #A0AEC0;
 }
 
-/* 포커스 관리 */
-.sidebar-toggle:focus {
-  outline: 2px solid #293380;
-  outline-offset: 2px;
-}
-
 /* 애니메이션 최적화 */
 @media (prefers-reduced-motion: reduce) {
   .main-content,
-  .main-sidebar,
-  .sidebar-overlay {
+  .main-sidebar {
     transition: none;
-  }
-  
-  .sidebar-overlay {
-    animation: none;
   }
 }
 
-/* 높은 해상도 디스플레이 최적화 */
-@media (min-resolution: 2dppx) {
-  .mobile-header {
-    border-bottom-width: 0.5px;
+/* 가로 스크롤 표시기 */
+.page-content {
+  position: relative;
+}
+
+.page-content::after {
+  content: '';
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, transparent, #F0EFF7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.page-content:hover::after {
+  opacity: 1;
+}
+
+/* 인쇄 시 스타일 */
+@media print {
+  .main-sidebar {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+  
+  .page-content {
+    min-width: 100% !important;
   }
 }
 </style>

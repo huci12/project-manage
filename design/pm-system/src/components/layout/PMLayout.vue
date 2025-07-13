@@ -12,9 +12,15 @@
     <!-- 메인 콘텐츠 영역 -->
     <main 
       class="pm-layout__main" 
-      :style="mainStyle"
+      :class="{
+        'pm-layout__main--sidebar-collapsed': sidebarCollapsed,
+        'pm-layout__main--has-quickpanel': showQuickPanel,
+        'pm-layout__main--quickpanel-collapsed': showQuickPanel && quickPanelCollapsed
+      }"
     >
-      <slot></slot>
+      <div class="pm-layout__content">
+        <slot></slot>
+      </div>
     </main>
     
     <!-- 빠른 작업 패널 -->
@@ -54,30 +60,6 @@ export default {
       quickPanelCollapsed: false
     }
   },
-  computed: {
-    mainStyle() {
-      const leftMargin = this.sidebarCollapsed ? '80px' : '280px'
-      
-      // 퀵패널이 있을 때 적당한 간격을 두고 paddingRight 사용
-      if (this.showQuickPanel) {
-        const quickPanelWidth = this.quickPanelCollapsed ? 60 : 300
-        const baseGap = 16 // 기본 간격
-        const minMargin = 10 // 최소 마진 10px
-        const totalRightSpace = quickPanelWidth + baseGap + minMargin
-        
-        return {
-          marginLeft: leftMargin,
-          paddingRight: `${quickPanelWidth + baseGap}px`,
-          minWidth: `${minMargin}px` // 최소 너비 보장
-        }
-      } else {
-        return {
-          marginLeft: leftMargin,
-          paddingRight: '16px' // 퀵패널이 없을 때도 약간의 여백
-        }
-      }
-    }
-  },
   methods: {
     handleNavClick(item) {
       this.$emit('nav-click', item)
@@ -109,60 +91,100 @@ export default {
   min-height: 100vh;
   background-color: #F0EFF7;
   position: relative;
+  min-width: 1440px; /* 전체 레이아웃 최소 너비 */
+  overflow-x: auto;
 }
 
 .pm-layout__main {
   flex: 1;
   min-height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  transition: margin 0.3s ease;
+  transition: all 0.3s ease;
   position: relative;
   background-color: #F0EFF7;
+  margin-left: 280px; /* 사이드바 너비 */
+  margin-right: 0;
+  min-width: 744px; /* 메인 콘텐츠 최소 너비 */
+  overflow-x: hidden;
 }
 
-/* 메인 콘텐츠 스크롤바 스타일 - 퀵패널 바로 왼쪽에 위치 */
-.pm-layout__main {
-  scrollbar-width: thin;
-  scrollbar-color: #CBD5E0 transparent;
+/* 사이드바 접힌 상태 */
+.pm-layout__main--sidebar-collapsed {
+  margin-left: 80px;
 }
 
-.pm-layout__main::-webkit-scrollbar {
+/* 퀵패널이 있을 때 */
+.pm-layout__main--has-quickpanel {
+  margin-right: 300px; /* 퀵패널 너비 */
+}
+
+/* 퀵패널 접힌 상태 */
+.pm-layout__main--quickpanel-collapsed {
+  margin-right: 60px; /* 접힌 퀵패널 너비 */
+}
+
+.pm-layout__content {
+  padding: 0;
+  min-width: 744px; /* 콘텐츠 최소 너비 보장 */
+  overflow-x: auto;
+}
+
+/* 메인 콘텐츠 스크롤바 스타일 */
+.pm-layout__content::-webkit-scrollbar {
   width: 8px;
-  background-color: transparent;
+  height: 8px;
 }
 
-.pm-layout__main::-webkit-scrollbar-track {
-  background: transparent;
+.pm-layout__content::-webkit-scrollbar-track {
+  background: #F7FAFC;
 }
 
-.pm-layout__main::-webkit-scrollbar-thumb {
+.pm-layout__content::-webkit-scrollbar-thumb {
   background: #CBD5E0;
   border-radius: 4px;
 }
 
-.pm-layout__main::-webkit-scrollbar-thumb:hover {
+.pm-layout__content::-webkit-scrollbar-thumb:hover {
   background: #A0AEC0;
 }
 
-/* 반응형 처리 */
+/* 작은 화면에서도 최소 너비 유지 */
 @media (max-width: 1600px) {
-  .pm-layout__main {
-    padding-right: max(16px, calc(250px + 26px)) !important; /* 퀵패널 너비 + 기본 간격 + 최소 마진 */
+  .pm-layout {
+    min-width: 1284px; /* 80px(접힌 사이드바) + 744px(콘텐츠) + 280px(퀵패널) */
+  }
+}
+
+@media (max-width: 1280px) {
+  .pm-layout {
+    min-width: 1084px; /* 80px(접힌 사이드바) + 744px(콘텐츠) + 260px(퀵패널) */
+  }
+  
+  /* 퀵패널이 있을 때 여유 공간 조정 */
+  .pm-layout__main--has-quickpanel {
+    margin-right: 260px;
+  }
+  
+  .pm-layout__main--quickpanel-collapsed {
+    margin-right: 60px;
   }
 }
 
 @media (max-width: 768px) {
-  .pm-layout__main {
-    margin-left: 0 !important;
-    padding-right: max(16px, calc(240px + 26px)) !important; /* 모바일에서는 퀵패널이 240px */
-    min-width: 10px !important; /* 최소 10px 너비 보장 */
+  .pm-layout {
+    min-width: 1064px; /* 80px(접힌 사이드바) + 744px(콘텐츠) + 240px(퀵패널) */
   }
-}
-
-@media (max-width: 480px) {
+  
   .pm-layout__main {
-    padding-right: max(16px, calc(200px + 26px)) !important; /* 더 작은 화면에서는 퀵패널 더 축소 */
+    margin-left: 80px; /* 모바일에서는 사이드바 기본 접힘 */
+  }
+  
+  /* 모바일에서도 퀵패널 표시 */
+  .pm-layout__main--has-quickpanel {
+    margin-right: 240px;
+  }
+  
+  .pm-layout__main--quickpanel-collapsed {
+    margin-right: 60px;
   }
 }
 </style>
